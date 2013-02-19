@@ -70,9 +70,10 @@ public class AlarmKlaxon extends Service {
         public void handleMessage(Message msg) {
             switch (msg.what) {
                 case KILLER:
-                    Log.d(TAG, "*********** Alarm killer triggered ***********");
-
-                    sendKillBroadcast((Alarm) msg.obj);
+                    if (Log.LOGV) {
+                        Log.v("*********** Alarm killer triggered ***********");
+                    }
+                    sendKillBroadcast((Alarm) msg.obj, false);
                     stopSelf();
                     break;
                 case INCVOL:
