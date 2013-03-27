@@ -34,14 +34,12 @@ import android.preference.PreferenceManager;
 import android.telephony.PhoneStateListener;
 import android.telephony.TelephonyManager;
 import android.text.format.DateUtils;
-import android.util.Log;
 
 /**
  * Manages alarms and vibe. Runs as a service so that it can continue to play
  * if another activity overrides the AlarmAlert dialog.
  */
 public class AlarmKlaxon extends Service {
-	private static String TAG = "AlarmKlaxon";
     // Default of 10 minutes until alarm is silenced.
     private static final String DEFAULT_ALARM_TIMEOUT = "10";
 
@@ -149,7 +147,7 @@ public class AlarmKlaxon extends Service {
                 Alarms.ALARM_INTENT_EXTRA);
 
         if (alarm == null) {
-            Log.d(TAG, "AlarmKlaxon failed to parse the alarm from the intent");
+            Log.v("AlarmKlaxon failed to parse the alarm from the intent");
             stopSelf();
             return START_NOT_STICKY;
         }
@@ -184,7 +182,9 @@ public class AlarmKlaxon extends Service {
         // stop() checks to see if we are already playing.
         stop();
 
-        Log.d(TAG, "AlarmKlaxon.play() " + alarm.id + " alert " + alarm.alert);
+        if (Log.LOGV) {
+            Log.v("AlarmKlaxon.play() " + alarm.id + " alert " + alarm.alert);
+        }
 
         if (!alarm.silent) {
             Uri alert = alarm.alert;
@@ -193,12 +193,10 @@ public class AlarmKlaxon extends Service {
             if (alert == null) {
                 alert = RingtoneManager.getDefaultUri(
                         RingtoneManager.TYPE_ALARM);
-                Log.d(TAG, "Using default alarm: " + alert.toString());
+                if (Log.LOGV) {
+                    Log.v("Using default alarm: " + alert.toString());
+                }
             }
-
-                mAudioManager = (AudioManager)getSystemService(Context.AUDIO_SERVICE);
-                // save current value
-                mAlarmVolumeSetting = mAudioManager.getStreamVolume(AudioManager.STREAM_ALARM);
 
             // TODO: Reuse mMediaPlayer instead of creating a new one and/or use
             // RingtoneManager.
@@ -206,7 +204,7 @@ public class AlarmKlaxon extends Service {
             mMediaPlayer.setOnErrorListener(new OnErrorListener() {
                 @Override
                 public boolean onError(MediaPlayer mp, int what, int extra) {
-                    Log.e(TAG, "Error occurred while playing audio.");
+                    Log.e("Error occurred while playing audio.");
                     mp.stop();
                     mp.release();
                     mMediaPlayer = null;
@@ -219,21 +217,16 @@ public class AlarmKlaxon extends Service {
                 // resource at a low volume to not disrupt the call.
                 if (mTelephonyManager.getCallState()
                         != TelephonyManager.CALL_STATE_IDLE) {
-                    Log.d(TAG, "Using the in-call alarm");
+                    Log.v("Using the in-call alarm");
                     mMediaPlayer.setVolume(IN_CALL_VOLUME, IN_CALL_VOLUME);
                     setDataSourceFromResource(getResources(), mMediaPlayer,
                             R.raw.in_call_alarm);
                 } else {
                     mMediaPlayer.setDataSource(this, alert);
-
-                    if (alarm.incvol) {
-                        mCurrentIncVol = INCVOL_START; // To start from desired setting use mAlarmVolumeSetting
-                        mAudioManager.setStreamVolume(AudioManager.STREAM_ALARM, mCurrentIncVol, 0);
-                    }
                 }
                 startAlarm(mMediaPlayer, alarm.increasingVolume);
             } catch (Exception ex) {
-                Log.d(TAG, "Using the fallback ringtone");
+                Log.v("Using the fallback ringtone");
                 // The alert may be on the sd card which could be busy right
                 // now. Use the fallback ringtone.
                 try {
@@ -244,7 +237,7 @@ public class AlarmKlaxon extends Service {
                     startAlarm(mMediaPlayer, alarm.increasingVolume);
                 } catch (Exception ex2) {
                     // At this point we just don't play anything.
-                    Log.e(TAG, "Failed to play fallback ringtone", ex2);
+                    Log.e("Failed to play fallback ringtone", ex2);
                 }
             }
         }
@@ -259,10 +252,6 @@ public class AlarmKlaxon extends Service {
         enableKiller(alarm);
         mPlaying = true;
         mStartTime = System.currentTimeMillis();
-
-        if (alarm.incvol) {
-            mHandler.sendEmptyMessageDelayed(INCVOL, INCVOL_DELAY);
-        }
     }
 
     // Do the common stuff when starting the alarm.
@@ -300,20 +289,15 @@ public class AlarmKlaxon extends Service {
      * repeating
      */
     public void stop() {
-        Log.d(TAG, "AlarmKlaxon.stop()");
+        if (Log.LOGV) Log.v("AlarmKlaxon.stop()");
         if (mPlaying) {
             mPlaying = false;
-
-            mHandler.removeMessages(INCVOL);
 
             // Stop audio playing
             if (mMediaPlayer != null) {
                 mMediaPlayer.stop();
                 mMediaPlayer.release();
                 mMediaPlayer = null;
-
-                // reset to default from before
-                mAudioManager.setStreamVolume(AudioManager.STREAM_ALARM, mAlarmVolumeSetting, 0);
             }
 
             // Stop vibrator
@@ -364,3 +348,4 @@ public class AlarmKlaxon extends Service {
         }
     }
 }
+
