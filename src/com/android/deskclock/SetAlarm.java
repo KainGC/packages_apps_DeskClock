@@ -52,7 +52,11 @@ public class SetAlarm extends PreferenceActivity implements Preference.OnPrefere
     private Preference mTimePref;
     private AlarmPreference mAlarmPref;
     private CheckBoxPreference mVibratePref;
+<<<<<<< HEAD
     private CheckBoxPreference mIncVolPref;
+=======
+    private CheckBoxPreference mIncreasingVolumePref;
+>>>>>>> aokp/jb-mr1
     private RepeatPreference mRepeatPref;
 
     private int     mId;
@@ -88,8 +92,13 @@ public class SetAlarm extends PreferenceActivity implements Preference.OnPrefere
         if (!v.hasVibrator()) {
             getPreferenceScreen().removePreference(mVibratePref);
         }
+<<<<<<< HEAD
         mIncVolPref = (CheckBoxPreference) findPreference("incvol");
         mIncVolPref.setOnPreferenceChangeListener(this);
+=======
+        mIncreasingVolumePref = (CheckBoxPreference) findPreference("increasingVolume");
+        mIncreasingVolumePref.setOnPreferenceChangeListener(this);
+>>>>>>> aokp/jb-mr1
         mRepeatPref = (RepeatPreference) findPreference("setRepeat");
         mRepeatPref.setOnPreferenceChangeListener(this);
 
@@ -236,7 +245,11 @@ public class SetAlarm extends PreferenceActivity implements Preference.OnPrefere
         mMinute = alarm.minutes;
         mRepeatPref.setDaysOfWeek(alarm.daysOfWeek);
         mVibratePref.setChecked(alarm.vibrate);
+<<<<<<< HEAD
         mIncVolPref.setChecked(alarm.incvol);
+=======
+        mIncreasingVolumePref.setChecked(alarm.increasingVolume);
+>>>>>>> aokp/jb-mr1
         // Give the alert uri to the preference.
         mAlarmPref.setAlert(alarm.alert);
         updateTime();
@@ -304,7 +317,11 @@ public class SetAlarm extends PreferenceActivity implements Preference.OnPrefere
         alarm.vibrate = mVibratePref.isChecked();
         alarm.label = mLabel.getText().toString();
         alarm.alert = mAlarmPref.getAlert();
+<<<<<<< HEAD
         alarm.incvol = mIncVolPref.isChecked();
+=======
+        alarm.increasingVolume = mIncreasingVolumePref.isChecked();
+>>>>>>> aokp/jb-mr1
         return alarm;
     }
 
